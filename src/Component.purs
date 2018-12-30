@@ -3,16 +3,19 @@ module Component where
 import Prelude
 
 import Data.Maybe (Maybe(..))
-
+import Data.Either (Either(..), fromRight)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Affjax as AX
+import Affjax.ResponseFormat (string) as RF
+import Effect.Aff (Aff)
 
-data Query a = ToggleState a
+data Query a = Init a
 
-type State = { on :: Boolean }
+type State = { title :: String, content :: String }
 
-component :: forall m. H.Component HH.HTML Query Unit Void m
+component :: H.Component HH.HTML Query Unit Void Aff
 component =
   H.component
     { initialState: const initialState
@@ -23,26 +26,23 @@ component =
   where
 
   initialState :: State
-  initialState = { on: false }
+  initialState = { title: "Loading", content: "Loading" }
 
   render :: State -> H.ComponentHTML Query
   render state =
     HH.div_
       [ HH.h1_
-          [ HH.text "Hello world!" ]
-      , HH.p_
-          [ HH.text "Why not toggle this button:" ]
-      , HH.button
-          [ HE.onClick (HE.input_ ToggleState) ]
-          [ HH.text
-              if not state.on
-              then "Don't push me"
-              else "I said don't push me!"
-          ]
+          [ HH.text state.title ]
+      , HH.div_
+          [ HH.text state.content ]
       ]
 
-  eval :: Query ~> H.ComponentDSL State Query Void m
+  eval :: Query ~> H.ComponentDSL State Query Void Aff
   eval = case _ of
-    ToggleState next -> do
-      _ <- H.modify (\state -> { on: not state.on })
-      pure next
+    Init next -> do
+        response <- H.liftAff $ AX.get RF.string "https://iit8qnfbeb.execute-api.ap-southeast-2.amazonaws.com/prod/about"        
+        case response.body of
+            Left _ -> pure next
+            Right resp -> do
+                _ <- H.modify (\state -> { title: "loaded", content: resp })
+                pure next
