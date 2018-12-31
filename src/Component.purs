@@ -8,8 +8,10 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Affjax as AX
-import Affjax.ResponseFormat (string) as RF
+import Affjax.ResponseFormat (string, ResponseFormat) as RF
 import Effect.Aff (Aff)
+import Affjax.RequestHeader
+import Data.MediaType
 
 data Query a = Init a
 
@@ -36,11 +38,18 @@ component =
       , HH.div_
           [ HH.text state.content ]
       ]
+  
+  req :: AX.Request String
+  req = AX.defaultRequest {
+                        url = "https://iit8qnfbeb.execute-api.ap-southeast-2.amazonaws.com/prod"
+                        , responseFormat = RF.string
+                        , headers = [ Accept (MediaType "text/markdown") ]
+                        }
 
   eval :: Query ~> H.ComponentDSL State Query Void Aff
   eval = case _ of
     Init next -> do
-        response <- H.liftAff $ AX.get RF.string "https://iit8qnfbeb.execute-api.ap-southeast-2.amazonaws.com/prod/about"        
+        response <- H.liftAff $ AX.request req
         case response.body of
             Left _ -> pure next
             Right resp -> do
