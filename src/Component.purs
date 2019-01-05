@@ -14,7 +14,6 @@ import Affjax.RequestHeader
 import Data.MediaType
 import Foreign.Object
 import Data.Argonaut.Core
-import Text.Markdown.SlamDown.Halogen.Component (SlamDownConfig, SlamDownMessage, SlamDownQuery(..), SlamDownFormState, slamDownComponent)
 
 data Query a = Init a
 
@@ -22,8 +21,8 @@ type State = { title :: String, content :: String }
 
 data SlamDownSlot = SlamDownSlot
 
-component :: SlamDownConfig -> H.Component HH.HTML Query Unit Void Aff
-component config =
+component :: H.Component HH.HTML Query Unit Void Aff
+component =
     H.component
         { initialState: const initialState
         , render
@@ -40,8 +39,8 @@ component config =
         HH.div_
         [ HH.h1_
             [ HH.text state.title ]
-        , HH.div_
-            [ HH.slot SlamDownSlot (slamDownComponent state.content config) unit Void ]
+        -- , HH.div_
+        --     [ HH.slot SlamDownSlot (slamDownComponent state.content config) unit Void ]
         ]
     
     req :: AX.Request Json
