@@ -16,7 +16,7 @@ main :: Effect Unit
 main = HA.runHalogenAff do
   el <- HA.selectElement (QuerySelector "#main")
   case el of
-    Nothing -> throwError $ error "no container  found"
+    Nothing -> throwError $ error "no container found"
     Just container -> do
       io <- runUI (C.component) unit container
       io.query $ H.action C.Init

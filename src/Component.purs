@@ -17,6 +17,7 @@ import Data.Argonaut.Core
 import Text.Markdown.SlamDown.Halogen.Component
 import Text.Markdown.SlamDown.Parser
 import Data.Foldable (for_)
+import Prism
 
 data Query a = Init a
                 -- | ChangeDocument String a
@@ -53,7 +54,7 @@ component =
     req = AX.defaultRequest {
                             url = "https://iit8qnfbeb.execute-api.ap-southeast-2.amazonaws.com/prod"
                             , responseFormat = RF.json
-                            , headers = [ Accept (MediaType "text/markdown") ]
+                            , headers = [ Accept (MediaType "application/json") ]
                             }
 
     eval :: Query ~> H.ParentDSL State Query (SlamDownQuery String) SlamDownSlot Void Aff
@@ -66,6 +67,7 @@ component =
                     let resp = decodeState raw
                     _ <- H.modify (\state -> resp)
                     for_ (parseMd resp.content) \md -> H.query SlamDownSlot (H.action (SetDocument md))
+                    _ <- H.liftEffect $ rerenderMd unit
                     pure next
 
     decodeState :: Json -> State

@@ -15,6 +15,6 @@
     "purescript-effect": "^2.0.0",
     "purescript-affjax": "7.0.0",
     "purescript-psci-support": "^4.0.0",
-    "purescript-markdown-halogen": "https://github.com/hackle/purescript-markdown-halogen.git#9022ad9"
+    "purescript-markdown-halogen": "https://github.com/hackle/purescript-markdown-halogen.git#fe95be7"
   }
 }
